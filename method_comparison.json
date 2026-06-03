@@ -1,0 +1,74 @@
+{
+  "A*-Only": {
+    "category": "Traditional",
+    "description": "Independent A* per robot",
+    "orders_mean": 0.0,
+    "orders_std": 0.0,
+    "tp_mean": 0.0,
+    "tp_std": 0.0,
+    "orders_raw": [
+      0,
+      0,
+      0
+    ],
+    "tp_raw": [
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  "A*+Prioritized": {
+    "category": "Traditional",
+    "description": "Prioritized Planning (baseline)",
+    "orders_mean": 3.6666666666666665,
+    "orders_std": 2.3570226039551585,
+    "tp_mean": 26.400000000000002,
+    "tp_std": 16.97056274847714,
+    "orders_raw": [
+      2,
+      2,
+      7
+    ],
+    "tp_raw": [
+      14.4,
+      14.4,
+      50.4
+    ]
+  },
+  "PDE-A*": {
+    "category": "Physics-Informed",
+    "description": "A* with PDE density heuristic",
+    "orders_mean": 0.0,
+    "orders_std": 0.0,
+    "tp_mean": 0.0,
+    "tp_std": 0.0,
+    "orders_raw": [
+      0,
+      0,
+      0
+    ],
+    "tp_raw": [
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  "Diffusion": {
+    "category": "Physics-Informed",
+    "description": "Perturbed A* + PDE guidance",
+    "orders_mean": 0.0,
+    "orders_std": 0.0,
+    "tp_mean": 0.0,
+    "tp_std": 0.0,
+    "orders_raw": [
+      0,
+      0,
+      0
+    ],
+    "tp_raw": [
+      0.0,
+      0.0,
+      0.0
+    ]
+  }
+}

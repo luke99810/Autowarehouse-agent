@@ -1,0 +1,370 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>仓储协同调度Agent</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+        .container { display: flex; gap: 20px; padding: 20px; max-width: 1400px; margin: 0 auto; }
+        .main-panel { flex: 1; background: white; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); overflow: hidden; }
+        .side-panel { width: 320px; background: white; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); padding: 20px; }
+        
+        .header { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { font-size: 20px; font-weight: 600; }
+        .step-info { background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 20px; font-size: 14px; }
+        
+        .grid-container { position: relative; overflow: auto; }
+        #grid { display: block; }
+        
+        .metrics-section { margin-bottom: 20px; }
+        .metrics-title { font-size: 14px; font-weight: 600; color: #666; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 2px solid #eee; }
+        .metric-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
+        .metric-label { color: #888; font-size: 13px; }
+        .metric-value { font-weight: 600; color: #333; font-size: 14px; }
+        
+        .stat-card { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; padding: 15px; border-radius: 12px; text-align: center; margin-bottom: 15px; }
+        .stat-card.orange { background: linear-gradient(135deg, #fc4a1a 0%, #f7b733 100%); }
+        .stat-card.purple { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .stat-card.blue { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .stat-value { font-size: 28px; font-weight: 700; }
+        .stat-label { font-size: 12px; opacity: 0.9; margin-top: 4px; }
+        
+        .legend { display: flex; gap: 15px; flex-wrap: wrap; margin-top: 10px; }
+        .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #666; }
+        .legend-color { width: 16px; height: 16px; border-radius: 4px; }
+        
+        .controls { display: flex; gap: 10px; margin-top: 20px; }
+        .control-btn { flex: 1; padding: 10px; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 500; }
+        .control-btn.play { background: #4CAF50; color: white; }
+        .control-btn.pause { background: #ff9800; color: white; }
+        .control-btn.reset { background: #f44336; color: white; }
+        
+        .chart-container { margin-top: 20px; }
+        .mini-chart { height: 100px; background: #f8f9fa; border-radius: 8px; position: relative; overflow: hidden; }
+        .chart-line { position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; }
+        .chart-bar { display: inline-block; background: #4facfe; margin-right: 2px; border-radius: 2px; }
+        
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .pulse { animation: pulse 2s infinite; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="main-panel">
+            <div class="header">
+                <h1>🏭 仓储协同调度Agent</h1>
+                <div class="step-info">Step: <span id="step-counter">0</span></div>
+            </div>
+            <div class="grid-container">
+                <canvas id="grid"></canvas>
+            </div>
+            <div class="legend">
+                <div class="legend-item"><div class="legend-color" style="background: #4682B4;"></div> 空闲机器人</div>
+                <div class="legend-item"><div class="legend-color" style="background: #32CD32;"></div> 载货机器人</div>
+                <div class="legend-item"><div class="legend-color" style="background: #8B4513;"></div> 货架</div>
+                <div class="legend-item"><div class="legend-color" style="background: #87CEEB;"></div> 配送区</div>
+                <div class="legend-item"><div class="legend-color" style="background: #FF69B4;"></div> 路径</div>
+            </div>
+        </div>
+        
+        <div class="side-panel">
+            <div class="stat-card">
+                <div class="stat-value" id="stat-throughput">0.0</div>
+                <div class="stat-label">吞吐量 (订单/小时)</div>
+            </div>
+            <div class="stat-card orange">
+                <div class="stat-value" id="stat-completed">0</div>
+                <div class="stat-label">已完成订单</div>
+            </div>
+            <div class="stat-card purple">
+                <div class="stat-value" id="stat-collisions">0</div>
+                <div class="stat-label">碰撞次数</div>
+            </div>
+            <div class="stat-card blue">
+                <div class="stat-value" id="stat-deadlocks">0</div>
+                <div class="stat-label">死锁次数</div>
+            </div>
+            
+            <div class="metrics-section">
+                <div class="metrics-title">📊 实时指标</div>
+                <div class="metric-item"><span class="metric-label">活跃机器人</span><span class="metric-value" id="metric-active">0</span></div>
+                <div class="metric-item"><span class="metric-label">空闲机器人</span><span class="metric-value" id="metric-idle">0</span></div>
+                <div class="metric-item"><span class="metric-label">载货机器人</span><span class="metric-value" id="metric-loaded">0</span></div>
+                <div class="metric-item"><span class="metric-label">待处理订单</span><span class="metric-value" id="metric-pending">0</span></div>
+            </div>
+            
+            <div class="chart-container">
+                <div class="metrics-title">📈 吞吐量趋势</div>
+                <div class="mini-chart">
+                    <div id="throughput-chart" class="chart-line"></div>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <button class="control-btn play" onclick="togglePlay()">▶ 播放</button>
+                <button class="control-btn pause" onclick="pause()">⏸ 暂停</button>
+                <button class="control-btn reset" onclick="reset()">🔄 重置</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('grid');
+        const ctx = canvas.getContext('2d');
+        
+        let gridWidth = {{ grid_width }};
+        let gridHeight = {{ grid_height }};
+        let shelves = JSON.parse('{{ shelves | safe }}');
+        let deliveries = JSON.parse('{{ deliveries | safe }}');
+        
+        let robots = [];
+        let paths = {};
+        let densityField = null;
+        let currentStep = 0;
+        let isPlaying = true;
+        let throughputHistory = [];
+        
+        const CELL_SIZE = 35;
+        const PADDING = 20;
+        
+        function resizeCanvas() {
+            canvas.width = gridWidth * CELL_SIZE + PADDING * 2;
+            canvas.height = gridHeight * CELL_SIZE + PADDING * 2;
+        }
+        
+        function drawGrid() {
+            ctx.fillStyle = '#F5F5DC';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // 绘制网格线
+            ctx.strokeStyle = '#E0E0E0';
+            ctx.lineWidth = 1;
+            for (let x = 0; x <= gridWidth; x++) {
+                ctx.beginPath();
+                ctx.moveTo(PADDING + x * CELL_SIZE, PADDING);
+                ctx.lineTo(PADDING + x * CELL_SIZE, PADDING + gridHeight * CELL_SIZE);
+                ctx.stroke();
+            }
+            for (let y = 0; y <= gridHeight; y++) {
+                ctx.beginPath();
+                ctx.moveTo(PADDING, PADDING + y * CELL_SIZE);
+                ctx.lineTo(PADDING + gridWidth * CELL_SIZE, PADDING + y * CELL_SIZE);
+                ctx.stroke();
+            }
+        }
+        
+        function drawDensityField() {
+            if (!densityField) return;
+            
+            for (let y = 0; y < gridHeight; y++) {
+                for (let x = 0; x < gridWidth; x++) {
+                    const density = densityField[y] ? densityField[y][x] || 0 : 0;
+                    if (density > 0.1) {
+                        const alpha = Math.min(density * 0.6, 0.5);
+                        ctx.fillStyle = `rgba(239, 154, 154, ${alpha})`;
+                        ctx.fillRect(PADDING + x * CELL_SIZE, PADDING + y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+                    }
+                }
+            }
+        }
+        
+        function drawShelves() {
+            ctx.fillStyle = '#8B4513';
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 2;
+            
+            shelves.forEach(shelf => {
+                const x = PADDING + shelf[0] * CELL_SIZE + CELL_SIZE * 0.1;
+                const y = PADDING + shelf[1] * CELL_SIZE + CELL_SIZE * 0.1;
+                const size = CELL_SIZE * 0.8;
+                
+                ctx.fillRect(x, y, size, size);
+                ctx.strokeRect(x, y, size, size);
+            });
+        }
+        
+        function drawDeliveries() {
+            ctx.fillStyle = '#87CEEB';
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 2;
+            
+            deliveries.forEach(del => {
+                const x = PADDING + del[0] * CELL_SIZE + CELL_SIZE * 0.1;
+                const y = PADDING + del[1] * CELL_SIZE + CELL_SIZE * 0.1;
+                const size = CELL_SIZE * 0.8;
+                
+                ctx.fillRect(x, y, size, size);
+                ctx.strokeRect(x, y, size, size);
+            });
+        }
+        
+        function drawPaths() {
+            Object.values(paths).forEach(path => {
+                if (path.length < 2) return;
+                
+                ctx.strokeStyle = '#FF69B4';
+                ctx.lineWidth = 3;
+                ctx.setLineDash([5, 5]);
+                ctx.beginPath();
+                
+                ctx.moveTo(
+                    PADDING + path[0].x * CELL_SIZE + CELL_SIZE / 2,
+                    PADDING + path[0].y * CELL_SIZE + CELL_SIZE / 2
+                );
+                
+                for (let i = 1; i < path.length; i++) {
+                    ctx.lineTo(
+                        PADDING + path[i].x * CELL_SIZE + CELL_SIZE / 2,
+                        PADDING + path[i].y * CELL_SIZE + CELL_SIZE / 2
+                    );
+                }
+                
+                ctx.stroke();
+                ctx.setLineDash([]);
+            });
+        }
+        
+        function drawRobots() {
+            robots.forEach(robot => {
+                const x = PADDING + robot.x * CELL_SIZE + CELL_SIZE / 2;
+                const y = PADDING + robot.y * CELL_SIZE + CELL_SIZE / 2;
+                const radius = CELL_SIZE * 0.35;
+                
+                // 机器人身体
+                ctx.beginPath();
+                ctx.arc(x, y, radius, 0, Math.PI * 2);
+                ctx.fillStyle = robot.loaded ? '#32CD32' : '#4682B4';
+                ctx.fill();
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                // 方向箭头
+                const dirs = [[0, -1], [1, 0], [0, 1], [-1, 0]];
+                const [dx, dy] = dirs[robot.direction];
+                
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(
+                    x + dx * radius * 0.8,
+                    y + dy * radius * 0.8
+                );
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 3;
+                ctx.stroke();
+                
+                // 箭头头部
+                ctx.beginPath();
+                ctx.moveTo(x + dx * radius * 0.8, y + dy * radius * 0.8);
+                const perp = [-dy, dx];
+                ctx.lineTo(
+                    x + dx * radius * 0.5 - perp[0] * radius * 0.3,
+                    y + dy * radius * 0.5 - perp[1] * radius * 0.3
+                );
+                ctx.lineTo(
+                    x + dx * radius * 0.5 + perp[0] * radius * 0.3,
+                    y + dy * radius * 0.5 + perp[1] * radius * 0.3
+                );
+                ctx.closePath();
+                ctx.fillStyle = '#fff';
+                ctx.fill();
+                
+                // 机器人ID
+                ctx.fillStyle = '#333';
+                ctx.font = 'bold 12px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(robot.id.toString(), x, y + radius + 12);
+            });
+        }
+        
+        function draw() {
+            drawGrid();
+            drawDensityField();
+            drawShelves();
+            drawDeliveries();
+            drawPaths();
+            drawRobots();
+        }
+        
+        function updateMetrics(data) {
+            if (!data.metrics) return;
+            
+            document.getElementById('step-counter').textContent = data.step;
+            document.getElementById('stat-throughput').textContent = data.metrics['吞吐量'] || '0.0';
+            document.getElementById('stat-completed').textContent = data.metrics['订单(待/完成)'] ? 
+                data.metrics['订单(待/完成)'].split('/')[1] : '0';
+            document.getElementById('stat-collisions').textContent = data.metrics['碰撞'] || '0';
+            document.getElementById('stat-deadlocks').textContent = data.metrics['死锁'] || '0';
+            
+            const activeIdleLoaded = data.metrics['活跃/空闲/载货'];
+            if (activeIdleLoaded) {
+                const parts = activeIdleLoaded.split('/');
+                document.getElementById('metric-active').textContent = parts[0] || '0';
+                document.getElementById('metric-idle').textContent = parts[1] || '0';
+                document.getElementById('metric-loaded').textContent = parts[2] || '0';
+            }
+            
+            const pendingCompleted = data.metrics['订单(待/完成)'];
+            if (pendingCompleted) {
+                document.getElementById('metric-pending').textContent = pendingCompleted.split('/')[0] || '0';
+            }
+            
+            // 更新吞吐量图表
+            const tp = parseFloat(data.metrics['吞吐量'] || '0');
+            throughputHistory.push(tp);
+            if (throughputHistory.length > 20) throughputHistory.shift();
+            
+            updateChart();
+        }
+        
+        function updateChart() {
+            const chart = document.getElementById('throughput-chart');
+            const max = Math.max(...throughputHistory, 1);
+            let html = '';
+            
+            throughputHistory.forEach(value => {
+                const height = (value / max) * 100;
+                html += `<div class="chart-bar" style="height: ${height}%; width: ${100/20}%;"></div>`;
+            });
+            
+            chart.innerHTML = html;
+        }
+        
+        function handleNewFrame(data) {
+            robots = data.robots || [];
+            paths = data.paths || {};
+            densityField = data.density_field;
+            currentStep = data.step;
+            
+            updateMetrics(data);
+            draw();
+        }
+        
+        // WebSocket连接
+        const socket = io();
+        socket.on('new_frame', handleNewFrame);
+        
+        function togglePlay() {
+            isPlaying = !isPlaying;
+        }
+        
+        function pause() {
+            isPlaying = false;
+        }
+        
+        function reset() {
+            currentStep = 0;
+            throughputHistory = [];
+            updateChart();
+        }
+        
+        resizeCanvas();
+        draw();
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
+</body>
+</html>
+    

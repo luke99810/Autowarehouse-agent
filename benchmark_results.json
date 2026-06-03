@@ -1,0 +1,175 @@
+{
+  "scale": [
+    {
+      "label": "Scale=tiny",
+      "throughput_mean": 171.0,
+      "throughput_std": 0.0,
+      "collision_rate_mean": 0.0,
+      "collision_rate_std": 0.0,
+      "orders_mean": 19.0,
+      "orders_std": 0.0,
+      "success_rate": 1.0,
+      "n_runs": 1
+    },
+    {
+      "label": "Scale=small",
+      "throughput_mean": 90.0,
+      "throughput_std": 0.0,
+      "collision_rate_mean": 0.0,
+      "collision_rate_std": 0.0,
+      "orders_mean": 10.0,
+      "orders_std": 0.0,
+      "success_rate": 1.0,
+      "n_runs": 1
+    },
+    {
+      "label": "Scale=medium",
+      "throughput_mean": 288.0,
+      "throughput_std": 0.0,
+      "collision_rate_mean": 0.0,
+      "collision_rate_std": 0.0,
+      "orders_mean": 32.0,
+      "orders_std": 0.0,
+      "success_rate": 1.0,
+      "n_runs": 1
+    },
+    {
+      "label": "Scale=large",
+      "throughput_mean": 207.0,
+      "throughput_std": 0.0,
+      "collision_rate_mean": 0.0,
+      "collision_rate_std": 0.0,
+      "orders_mean": 23.0,
+      "orders_std": 0.0,
+      "success_rate": 1.0,
+      "n_runs": 1
+    }
+  ],
+  "robot": [
+    {
+      "label": "Robots=2",
+      "throughput_mean": 216.0,
+      "throughput_std": 0.0,
+      "collision_rate_mean": 0.0,
+      "collision_rate_std": 0.0,
+      "orders_mean": 24.0,
+      "orders_std": 0.0,
+      "success_rate": 1.0,
+      "n_runs": 1
+    },
+    {
+      "label": "Robots=4",
+      "throughput_mean": 279.0,
+      "throughput_std": 0.0,
+      "collision_rate_mean": 0.0,
+      "collision_rate_std": 0.0,
+      "orders_mean": 31.0,
+      "orders_std": 0.0,
+      "success_rate": 1.0,
+      "n_runs": 1
+    },
+    {
+      "label": "Robots=8",
+      "throughput_mean": 72.0,
+      "throughput_std": 0.0,
+      "collision_rate_mean": 0.0,
+      "collision_rate_std": 0.0,
+      "orders_mean": 8.0,
+      "orders_std": 0.0,
+      "success_rate": 1.0,
+      "n_runs": 1
+    }
+  ],
+  "ablation": [
+    {
+      "label": "A*-Only",
+      "throughput_mean": 0.0,
+      "throughput_std": 0.0,
+      "collision_rate_mean": 0.0,
+      "collision_rate_std": 0.0,
+      "orders_mean": 0.0,
+      "orders_std": 0.0,
+      "success_rate": 1.0,
+      "n_runs": 1
+    },
+    {
+      "label": "A*+Prioritized",
+      "throughput_mean": 252.0,
+      "throughput_std": 0.0,
+      "collision_rate_mean": 0.0,
+      "collision_rate_std": 0.0,
+      "orders_mean": 28.0,
+      "orders_std": 0.0,
+      "success_rate": 1.0,
+      "n_runs": 1
+    }
+  ],
+  "cross": {
+    "small-R2": {
+      "label": "small-R2",
+      "throughput_mean": 198.0,
+      "throughput_std": 0.0,
+      "collision_rate_mean": 0.0,
+      "collision_rate_std": 0.0,
+      "orders_mean": 22.0,
+      "orders_std": 0.0,
+      "success_rate": 1.0,
+      "n_runs": 1
+    },
+    "small-R4": {
+      "label": "small-R4",
+      "throughput_mean": 9.0,
+      "throughput_std": 0.0,
+      "collision_rate_mean": 0.0,
+      "collision_rate_std": 0.0,
+      "orders_mean": 1.0,
+      "orders_std": 0.0,
+      "success_rate": 1.0,
+      "n_runs": 1
+    },
+    "small-R8": {
+      "label": "small-R8",
+      "throughput_mean": 126.0,
+      "throughput_std": 0.0,
+      "collision_rate_mean": 0.0,
+      "collision_rate_std": 0.0,
+      "orders_mean": 14.0,
+      "orders_std": 0.0,
+      "success_rate": 1.0,
+      "n_runs": 1
+    },
+    "medium-R2": {
+      "label": "medium-R2",
+      "throughput_mean": 153.0,
+      "throughput_std": 0.0,
+      "collision_rate_mean": 0.0,
+      "collision_rate_std": 0.0,
+      "orders_mean": 17.0,
+      "orders_std": 0.0,
+      "success_rate": 1.0,
+      "n_runs": 1
+    },
+    "medium-R4": {
+      "label": "medium-R4",
+      "throughput_mean": 270.0,
+      "throughput_std": 0.0,
+      "collision_rate_mean": 0.0,
+      "collision_rate_std": 0.0,
+      "orders_mean": 30.0,
+      "orders_std": 0.0,
+      "success_rate": 1.0,
+      "n_runs": 1
+    },
+    "medium-R8": {
+      "label": "medium-R8",
+      "throughput_mean": 45.0,
+      "throughput_std": 0.0,
+      "collision_rate_mean": 0.0,
+      "collision_rate_std": 0.0,
+      "orders_mean": 5.0,
+      "orders_std": 0.0,
+      "success_rate": 1.0,
+      "n_runs": 1
+    }
+  }
+}

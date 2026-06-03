@@ -1,0 +1,52 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+*.egg
+dist/
+build/
+
+# Virtual environments
+venv/
+.venv/
+env/
+.env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project generated outputs
+logs/
+frames_en/
+frames/
+*.gif
+fig1_*.png
+fig2_*.png
+fig3_*.png
+fig4_*.png
+fig5_*.png
+fig6_*.png
+fig7_*.png
+fig8_*.png
+
+# Generated reports
+analysis_report.txt
+detailed_report.txt
+comprehensive_report.txt
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Python dotenv
+.env.local
+.env.*.local

@@ -1,0 +1,11 @@
+# Core
+numpy>=1.24
+matplotlib>=3.7
+
+# GIF / image processing
+Pillow>=10.0
+
+# Web visualization (optional — falls back to matplotlib if missing)
+Flask>=2.3
+Flask-SocketIO>=5.3
+eventlet>=0.33
