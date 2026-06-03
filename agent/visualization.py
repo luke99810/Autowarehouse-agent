@@ -20,6 +20,10 @@ try:
         matplotlib.use('Agg')
     import matplotlib.pyplot as plt
     import matplotlib.patches as patches
+    # 配置中文字体，避免 GIF / PNG 渲染为方块
+    plt.rcParams['font.family'] = 'sans-serif'
+    plt.rcParams['font.sans-serif'] = ['Microsoft YaHei', 'SimHei', 'WenQuanYi Micro Hei', 'DejaVu Sans']
+    plt.rcParams['axes.unicode_minus'] = False
     MATPLOTLIB_AVAILABLE = True
 except ImportError:
     MATPLOTLIB_AVAILABLE = False
@@ -246,7 +250,7 @@ class VisualizationModule:
         self.ax_panel.set_axis_off()
         if metrics_text:
             self.ax_panel.text(0.05, 0.95, metrics_text, fontsize=10,
-                              verticalalignment='top', fontfamily='monospace')
+                              verticalalignment='top', fontfamily='sans-serif')
         
         self.fig.canvas.draw_idle()
         self.fig.canvas.flush_events()

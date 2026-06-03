@@ -29,10 +29,11 @@ class ScientificChartGenerator:
             '#CA9161',  # purple
         ]
 
-        # Matplotlib style settings
+        # Matplotlib style settings — use sans-serif with Chinese font support
         plt.rcParams.update({
-            'font.family': 'serif',
-            'font.serif': ['Times New Roman', 'DejaVu Serif'],
+            'font.family': 'sans-serif',
+            'font.sans-serif': ['Microsoft YaHei', 'SimHei', 'WenQuanYi Micro Hei', 'DejaVu Sans'],
+            'axes.unicode_minus': False,
             'font.size': 12,
             'axes.titlesize': 14,
             'axes.labelsize': 12,
