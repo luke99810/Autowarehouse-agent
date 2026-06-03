@@ -27,6 +27,7 @@ def main():
     p.add_argument("--viz-mode", choices=["matplotlib", "web", "both"], 
                    default="web", help="可视化模式")
     p.add_argument("--fps", type=int, default=10, help="帧率")
+    p.add_argument("--save-gif", action="store_true", help="保存模拟为GIF动画")
     
     # 算法配置
     p.add_argument("--algo", choices=["astar", "prioritized", "pde_astar", "diffusion", "pde_diffusion"],
@@ -70,6 +71,11 @@ def main():
         cfg.visualization.enabled = False
     cfg.visualization.render_mode = args.viz_mode
     cfg.visualization.fps = args.fps
+    if args.save_gif:
+        cfg.visualization.save_gif = True
+    # matplotlib 模式下自动启用 GIF 保存
+    if args.viz_mode in ("matplotlib", "both"):
+        cfg.visualization.save_gif = True
     cfg.path_planning.algorithm = args.algo
     cfg.task_assignment.strategy = args.task_strategy
     if args.no_prioritized:
